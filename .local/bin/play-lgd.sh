@@ -13,7 +13,21 @@ search_songs() {
     query="$1"
     echo "Searching: $query"
     echo "Loading results..."
-    results=$(yt-dlp "ytsearch5:$query" -j | jq -r '[.title, .webpage_url] | @tsv')
+
+    results=$(yt-dlp "ytsearch5:$query" \
+        --flat-playlist \
+        --no-warnings \
+        --no-check-certificates \
+        --no-playlist \
+        --extract-audio \
+        --audio-format best \
+        --no-write-auto-subs \
+        --no-write-subs \
+        --sub-format=none \
+        --print '[%(title)s,%(webpage_url)s]' \
+        2>/dev/null | \
+        sed -e 's/\[//' -e 's/\]//' | \
+        awk -F',' '{print $1 "\t" $2}')
 
     i=1
     while IFS=$'\t' read -r title url; do
@@ -38,7 +52,17 @@ search_songs() {
         fi
         
         show_current_song "$selected_title"
-        mpv --no-video "$selected_url"
+
+        mpv --no-video \
+            --cache=yes \
+            --cache-secs=30 \
+            --demuxer-max-bytes=500M \
+            --force-media-title="$selected_title" \
+            --no-sub \
+            --sid=0 \
+            --ytdl-format=bestaudio \
+            "$selected_url"
+
     else
         echo "Invalid selection"
     fi
@@ -59,7 +83,13 @@ play_playlist() {
     if [ -s "$PLAYLIST_FILE" ]; then
         echo "Reproducing playlist..."
         playlist_urls=$(cut -d '#' -f1 "$PLAYLIST_FILE")
-        mpv --playlist=<(echo "$playlist_urls")
+        mpv --no-video \
+            --cache=yes \
+            --cache-secs=30 \
+            --demuxer-max-bytes=500M \
+            --no-sub \
+            --ytdl-format=bestaudio \
+            --playlist=<(echo "$playlist_urls")
     else
         echo "Empty playlist :("
     fi
@@ -83,6 +113,7 @@ show_help() {
     echo "  q                       Quit"
     echo "  >                       Next playlist entry"
     echo "  <                       Previous playlist entry"
+    echo "  /                       Show playlist"
 }
 
 case "$1" in
