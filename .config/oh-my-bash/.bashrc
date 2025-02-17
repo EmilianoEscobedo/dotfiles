@@ -124,6 +124,8 @@ alias ls="lsd"
 alias cat="bat"
 alias idea="idea.sh"
 alias clipfile='xclip -selection clipboard <'
+alias player='/home/laingard/shellScripts/play-lgd.sh'
+alias mc='/home/laingard/mc/UltimMC/./UltimMC'
 
 export PATH="$HOME/shellScripts:$PATH"
 export PATH="$HOME/intelliJ/idea-IC-223.7571.182/bin:$PATH"
@@ -131,3 +133,5 @@ export PATH="$HOME/intelliJ/idea-IC-223.7571.182/bin:$PATH"
 
 # Load Angular CLI autocompletion.
 source <(ng completion script)
+source /usr/share/nvm/init-nvm.sh
+. "$HOME/.cargo/env"
