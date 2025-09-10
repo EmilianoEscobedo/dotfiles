@@ -12,6 +12,7 @@ Feel free to copy any of the dotfiles or scripts you find here. I wouldn't recom
 - Window Manager: [Qtile](https://qtile.org/)
 - Display Session Manager: [sddm](https://github.com/sddm/sddm)
 - Terminal: [Alacritty](https://github.com/alacritty/alacritty)
+- Multiplexer [Tmux](https://github.com/tmux/tmux)
 - Launcher: [rofi](https://github.com/davatorium/rofi)
 - Browser: [Firefox (with BetterFox)](https://github.com/yokoffing/BetterFox)
 - File Manager: [ranger](https://github.com/ranger/ranger)
