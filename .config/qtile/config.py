@@ -42,7 +42,7 @@ mod = "mod4"
 terminal = guess_terminal()
 
 taskbarColor ="#282a36"
-taskbarSize = 40
+taskbarSize = 45
 defaultFont = "Hack Nerd Font Mono"
 
 ####################
@@ -82,6 +82,8 @@ keys = [
     Key([mod], 's', lazy.spawn("pavucontrol -t 3"), desc="Launch sound control"),
     Key([mod], 'c', lazy.spawn("calc.sh"), desc="Launch calculator"),
     Key([mod], 'i', lazy.spawn("/opt/intellij-idea-ultimate-edition/bin/idea.sh", shell=True), desc="Launch IntelliJ"),
+    Key([mod], 'r', lazy.spawn("/usr/local/bin/rider", shell=True), desc="Launch Rider"),
+    Key([mod, "shift"], 'w', lazy.spawn("/opt/webstorm/bin/webstorm.sh", shell=True), desc="Launch WebStorm"),
     Key([mod, "shift"], 'Return', lazy.spawn("/home/laingard/shellScripts/changeLayout.sh", shell=True), desc="Change layout"),
     Key([mod], 'period', lazy.next_screen(), desc='Next monitor'),
 
@@ -90,7 +92,6 @@ keys = [
     Key([mod], "w", lazy.window.kill(), desc="Kill focused window"),
     Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
-    Key([mod], "r", lazy.spawncmd(), desc="Spawn a command using a prompt widget"),
     Key([mod], "b", lazy.window.toggle_floating()),
 ]
 
@@ -98,9 +99,7 @@ keys = [
 # Default groups config #
 #########################
 
-groups = [Group(i) for i in [
-    '','','','','',''
-    ]]
+groups = [Group(str(i), label="●") for i in range(1, 8)]
 
 for i, group in enumerate(groups):
     nDesktop = str(i + 1)
@@ -152,7 +151,8 @@ def delete_current_group(qtile):
         qtile.delete_group(group_name)
 
 keys.extend([
-    Key(["control"], "space", lazy.function(create_new_group), desc="Create new group"),
+    Key(["control"], "questiondown", lazy.function(create_new_group), desc="Create new group"),
+    Key(["control"], "equal", lazy.function(create_new_group), desc="Create new group"),
     Key(["control"], "backspace", lazy.function(delete_current_group), desc="Delete current group"),
 ])
 
@@ -174,9 +174,7 @@ keys.extend([
 
 def get_updates():
     try:
-        pacman_updates = int(subprocess.check_output(["checkupdates | wc -l"], shell=True))
-        aur_updates = int(subprocess.check_output(["yay -Qu | wc -l"], shell=True))
-        updates = pacman_updates + aur_updates
+        updates = int(subprocess.check_output(["yay -Qu | wc -l"], shell=True))
     except subprocess.CalledProcessError:
         updates = "Error"
     return f"{updates}"
@@ -205,18 +203,10 @@ layouts = [
 # Bar config #
 ##############
 
-extension_defaults = widget_defaults.copy()
-
-widget_defaults = dict(
-    font= defaultFont,
-    fontsize=14,
-    padding=3,
-)
-
-def separator():
+def separator(padding = 6):
     return widget.Sep(
         linewidth = 0,
-        padding = 6,
+        padding = padding,
     )
 
 def pipe():
@@ -231,21 +221,24 @@ screens = [
     Screen(
         top=bar.Bar(
             [
+                # Left margin & Arch logo
+                separator(12),
+                widget.Image(margin=5, filename='/home/laingard/Images/archlogo.png'),
+                separator(),
+
                 # Groups
                 widget.GroupBox(
                     disable_drag = True,
-                    borderwidth = 2,
-                    highlight_method='line',
+                    highlight_method = 'text',
+                    active = "#ffffff",
                     inactive = "#5c5b5b",
                     this_current_screen_border = "#bd93f9",
-                    fontsize=35,
-                    padding=5
+                    this_screen_border = "#bd93f9",
+                    fontsize = 18,
+                    padding = 4
                     ),
-                separator(),
-                
-                # Arch logo
-                widget.Image(margin=5, filename='/home/laingard/Images/archlogo.png'),
-                
+                pipe(),
+
                 # Window focus title
                 widget.WindowTabs(
                     padding=20,
@@ -256,7 +249,7 @@ screens = [
                 # Systray
                 widget.Systray(
                     padding = 10,
-                    icon_size = 21
+                    icon_size = 23
                     ),
                 separator(),
                 
@@ -268,7 +261,7 @@ screens = [
                 pipe(),
                 widget.TextBox(
                     "",
-                    fontsize=23
+                    fontsize=20
                 ),
                 widget.GenPollText(
                     func=get_updates,
@@ -279,9 +272,10 @@ screens = [
                 pipe(),
                 widget.TextBox(
                     "",
-                    fontsize=23),
-                widget.CurrentLayout(),
-                separator()
+                    fontsize=20),
+                # widget.CurrentLayout(),
+                # Right margin
+                separator(12)
             ],
             taskbarSize,
             background = taskbarColor,
@@ -325,8 +319,3 @@ floating_layout = layout.Floating(
 def autostart():
     home = os.path.expanduser('~')
     subprocess.Popen([home + '/.config/qtile/autostart.sh'])
-
-@hook.subscribe.startup_complete
-def poststart():
-    home = os.path.expanduser('~')
-    subprocess.Popen([home + '/home/laingard/shellScripts/sensorScreen.sh'])
