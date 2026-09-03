@@ -1,11 +1,16 @@
 #!/bin/bash
 
-xdotool key Super_L+5&
+sleep 1
 
-xdotool key Super_L+period&
+xdotool key Super_L+5
+sleep 0.2
 
-btop -p 1;
+xdotool key Super_L+period
+sleep 0.2
 
-xdotool key Super_L+period&
+alacritty -e btop -p 1 &
+sleep 0.5
 
-xdotool key Super_L+1&
+xdotool key Super_L+period
+sleep 0.2
+xdotool key Super_L+1
